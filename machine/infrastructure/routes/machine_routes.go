@@ -1,25 +1,19 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
-	"laundry-hub-api/core/security"
-	"laundry-hub-api/machine/infrastructure/dependencies"
+    "github.com/gin-gonic/gin"
+    "laundry-hub-api/machine/infrastructure/dependencies"
 )
 
 func RegisterMachineRoutes(api *gin.RouterGroup, deps *dependencies.MachineDependencies) {
-	machines := api.Group("/machines")
-	{
-		// Rutas públicas (pueden ver las máquinas)
-		machines.GET("", deps.GetMachinesController.Handle)
-		machines.GET("/:id", deps.GetMachineByIDController.Handle)
+    machines := api.Group("/machines")
+    {        
+        // Obtener máquinas (públicas)
+        machines.GET("", deps.GetMachinesController.Handle)
+        machines.GET("/:id", deps.GetMachineByIDController.Handle)
 
-		// Rutas protegidas - Solo Admin
-		protected := machines.Group("")
-		protected.Use(security.AuthMiddleware(), security.AdminMiddleware())
-		{
-			protected.POST("", deps.CreateMachineController.Handle)
-			protected.PUT("/:id", deps.UpdateMachineController.Handle)
-			protected.DELETE("/:id", deps.DeleteMachineController.Handle)
-		}
-	}
+        machines.POST("", deps.CreateMachineController.Handle)
+        machines.PUT("/:id", deps.UpdateMachineController.Handle)
+        machines.DELETE("/:id", deps.DeleteMachineController.Handle)
+    }
 }

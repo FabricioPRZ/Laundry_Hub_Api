@@ -7,7 +7,7 @@ import (
 )
 
 func RegisterUserRoutes(api *gin.RouterGroup, deps *dependencies.UserDependencies) {
-	auth := api.Group("/auth")
+	auth := api.Group("auth")
 	{
 		// Rutas públicas
 		auth.POST("/register", deps.RegisterController.Handle)
