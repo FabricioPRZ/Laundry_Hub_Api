@@ -25,6 +25,7 @@ func ConfigureUserRoutes(
 		authGroup.POST("/refresh", authCtrl.RefreshToken)
 		authGroup.GET("/profile", security.JWTMiddleware(), authCtrl.GetProfile)
 		authGroup.GET("/verify", security.JWTMiddleware(), authCtrl.VerifyToken)
+		authGroup.POST("/google/mobile", oauthCtrl.GoogleMobile)
 		authGroup.GET("/google/callback", oauthCtrl.GoogleCallback)
 		authGroup.GET("/github/callback", oauthCtrl.GitHubCallback)
 	}
