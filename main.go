@@ -4,6 +4,8 @@ import (
 	"laundry-hub-api/src/core/cloudinary"
 	machineInfrastructure "laundry-hub-api/src/machine/infrastructure"
 	machineRoutes "laundry-hub-api/src/machine/infrastructure/routes"
+	reservationInfrastructure "laundry-hub-api/src/reservation/infrastructure"
+	reservationRoutes "laundry-hub-api/src/reservation/infrastructure/routes"
 	userInfrastructure "laundry-hub-api/src/user/infrastructure"
 	userRoutes "laundry-hub-api/src/user/infrastructure/routes"
 	"log"
@@ -17,10 +19,11 @@ func main() {
 
 	userDeps := userInfrastructure.InitUsers()
 	machineDeps := machineInfrastructure.InitMachines()
+	reservationDeps := reservationInfrastructure.InitReservations()
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
+		AllowOrigins:     []string{"http://localhost:4200"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
@@ -44,6 +47,15 @@ func main() {
 		machineDeps.GetMachineByIdController,
 		machineDeps.UpdateMachineController,
 		machineDeps.DeleteMachineController,
+	)
+
+	reservationRoutes.ConfigureReservationRoutes(
+		router,
+		reservationDeps.CreateReservationController,
+		reservationDeps.CancelReservationController,
+		reservationDeps.CompleteReservationController,
+		reservationDeps.GetReservationByIdController,
+		reservationDeps.GetReservationsByUserController,
 	)
 
 	log.Println("Servidor corriendo en http://localhost:8080")
