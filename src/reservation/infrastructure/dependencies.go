@@ -3,6 +3,7 @@ package infrastructure
 import (
 	"laundry-hub-api/src/core"
 	machineAdapters "laundry-hub-api/src/machine/infrastructure/adapters"
+	notificationAdapters "laundry-hub-api/src/notification/infrastructure/adapters"
 	"laundry-hub-api/src/reservation/application"
 	"laundry-hub-api/src/reservation/infrastructure/adapters"
 	"laundry-hub-api/src/reservation/infrastructure/controllers"
@@ -20,8 +21,9 @@ func InitReservations() *DependenciesReservations {
 	conn := core.GetDBPool()
 	reservationRepo := adapters.NewMySQL(conn.DB)
 	machineRepo := machineAdapters.NewMySQL(conn.DB)
+	notificationRepo := notificationAdapters.NewMySQL(conn.DB)
 
-	createReservation := application.NewCreateReservation(reservationRepo, machineRepo)
+	createReservation := application.NewCreateReservation(reservationRepo, machineRepo, notificationRepo)
 	cancelReservation := application.NewCancelReservation(reservationRepo, machineRepo)
 	completeReservation := application.NewCompleteReservation(reservationRepo, machineRepo)
 	getReservationByID := application.NewGetReservationByID(reservationRepo)

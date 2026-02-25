@@ -2,6 +2,7 @@ package main
 
 import (
 	"laundry-hub-api/src/core/cloudinary"
+	ws "laundry-hub-api/src/core/websocket"
 	machineInfrastructure "laundry-hub-api/src/machine/infrastructure"
 	machineRoutes "laundry-hub-api/src/machine/infrastructure/routes"
 	notificationInfrastructure "laundry-hub-api/src/notification/infrastructure"
@@ -14,10 +15,12 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"laundry-hub-api/src/core/security"
 )
 
 func main() {
 	cloudinary.InitCloudinary()
+	ws.InitWebSocket()
 
 	userDeps := userInfrastructure.InitUsers()
 	machineDeps := machineInfrastructure.InitMachines()
@@ -31,6 +34,8 @@ func main() {
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
 	}))
+
+	router.GET("/ws", security.JWTMiddleware(), ws.HandleConnection)
 
 	userRoutes.ConfigureUserRoutes(
 		router,
