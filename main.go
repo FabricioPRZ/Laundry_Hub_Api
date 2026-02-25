@@ -1,78 +1,53 @@
 package main
 
 import (
+	"laundry-hub-api/src/core/cloudinary"
+	machineInfrastructure "laundry-hub-api/src/machine/infrastructure"
+	machineRoutes "laundry-hub-api/src/machine/infrastructure/routes"
+	userInfrastructure "laundry-hub-api/src/user/infrastructure"
+	userRoutes "laundry-hub-api/src/user/infrastructure/routes"
 	"log"
-	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
-	"laundry-hub-api/core"
-	machineDeps "laundry-hub-api/machine/infrastructure/dependencies"
-	machineRoutes "laundry-hub-api/machine/infrastructure/routes"
-	userDeps "laundry-hub-api/user/infrastructure/dependencies"
-	userRoutes "laundry-hub-api/user/infrastructure/routes"
 )
 
 func main() {
-	// Cargar variables de entorno
-	if err := godotenv.Load(); err != nil {
-		log.Println("Warning: .env file not found")
-	}
+	cloudinary.InitCloudinary()
 
-	// Inicializar base de datos
-	db := core.InitDB()
-	defer db.Close()
+	userDeps := userInfrastructure.InitUsers()
+	machineDeps := machineInfrastructure.InitMachines()
 
-	// Configurar Gin
 	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowCredentials: true,
+	}))
 
-	// Middleware CORS
-	router.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+	userRoutes.ConfigureUserRoutes(
+		router,
+		userDeps.AuthController,
+		userDeps.CreateUserController,
+		userDeps.GetAllUsersController,
+		userDeps.GetUserByIdController,
+		userDeps.UpdateUserController,
+		userDeps.DeleteUserController,
+		userDeps.OAuthController,
+	)
 
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
+	machineRoutes.ConfigureMachineRoutes(
+		router,
+		machineDeps.CreateMachineController,
+		machineDeps.GetAllMachinesController,
+		machineDeps.GetMachineByIdController,
+		machineDeps.UpdateMachineController,
+		machineDeps.DeleteMachineController,
+	)
 
-		c.Next()
-	})
-
-	// Health check
-	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"success": true,
-			"message": "API is running",
-		})
-	})
-
-	// API Group
-	api := router.Group("/api")
-
-	// Inicializar dependencias de User
-	userDependencies := userDeps.NewUserDependencies(db)
-
-	// Inicializar dependencias de Machine
-	machineDependencies := machineDeps.NewMachineDependencies(db)
-
-	// Registrar rutas
-	userRoutes.RegisterUserRoutes(api, userDependencies)
-	machineRoutes.RegisterMachineRoutes(api, machineDependencies)
-
-	// Obtener puerto
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "3000"
-	}
-
-	// Iniciar servidor
-	log.Printf("🚀 Server running on port %s", port)
-	log.Printf("📡 API available at http://localhost:%s/api", port)
-	
-	if err := router.Run(":" + port); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+	log.Println("Servidor corriendo en http://localhost:8080")
+	if err := router.Run(":8080"); err != nil {
+		log.Fatal("Error al iniciar el servidor:", err)
 	}
 }
