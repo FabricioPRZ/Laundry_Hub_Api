@@ -61,6 +61,7 @@ func (as *AuthService) Register(user *entities.User) (*entities.User, error) {
 
 	user.Password = &hashedPassword
 	user.OAuthProvider = "LOCAL"
+	user.Role = "USER"
 
 	savedUser, err := as.userRepo.Save(user)
 	if err != nil {

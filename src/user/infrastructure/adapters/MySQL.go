@@ -45,8 +45,7 @@ func (m *MySQL) Save(user *entities.User) (*entities.User, error) {
 		return nil, fmt.Errorf("error al obtener ID: %v", err)
 	}
 
-	user.ID = int(id)
-	return user, nil
+	return m.GetByID(int(id))
 }
 
 func (m *MySQL) GetByEmail(email string) (*entities.User, error) {
