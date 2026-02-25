@@ -4,6 +4,8 @@ import (
 	"laundry-hub-api/src/core/cloudinary"
 	machineInfrastructure "laundry-hub-api/src/machine/infrastructure"
 	machineRoutes "laundry-hub-api/src/machine/infrastructure/routes"
+	notificationInfrastructure "laundry-hub-api/src/notification/infrastructure"
+	notificationRoutes "laundry-hub-api/src/notification/infrastructure/routes"
 	reservationInfrastructure "laundry-hub-api/src/reservation/infrastructure"
 	reservationRoutes "laundry-hub-api/src/reservation/infrastructure/routes"
 	userInfrastructure "laundry-hub-api/src/user/infrastructure"
@@ -20,6 +22,7 @@ func main() {
 	userDeps := userInfrastructure.InitUsers()
 	machineDeps := machineInfrastructure.InitMachines()
 	reservationDeps := reservationInfrastructure.InitReservations()
+	notificationDeps := notificationInfrastructure.InitNotifications()
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -56,6 +59,14 @@ func main() {
 		reservationDeps.CompleteReservationController,
 		reservationDeps.GetReservationByIdController,
 		reservationDeps.GetReservationsByUserController,
+	)
+
+	notificationRoutes.ConfigureNotificationRoutes(
+		router,
+		notificationDeps.CreateNotificationController,
+		notificationDeps.GetNotificationsByUserController,
+		notificationDeps.MarkAsReadController,
+		notificationDeps.MarkAllAsReadController,
 	)
 
 	log.Println("Servidor corriendo en http://localhost:8080")
