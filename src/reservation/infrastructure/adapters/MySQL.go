@@ -28,8 +28,7 @@ func (m *MySQL) Save(reservation *entities.Reservation) (*entities.Reservation, 
 		return nil, fmt.Errorf("error al obtener ID: %v", err)
 	}
 
-	reservation.ID = int(id)
-	return reservation, nil
+	return m.GetByID(int(id))
 }
 
 func (m *MySQL) GetByID(id int) (*entities.Reservation, error) {

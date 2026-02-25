@@ -14,6 +14,29 @@ func NewMySQL(conn *sql.DB) *MySQL {
 	return &MySQL{conn: conn}
 }
 
+func (m *MySQL) GetByID(id int) (*entities.Notification, error) {
+	query := `SELECT id, user_id, reservation_id, message, type, is_read, created_at FROM notifications WHERE id = ?`
+
+	var n entities.Notification
+	err := m.conn.QueryRow(query, id).Scan(
+		&n.ID,
+		&n.UserID,
+		&n.ReservationID,
+		&n.Message,
+		&n.Type,
+		&n.IsRead,
+		&n.CreatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("error al buscar notificación: %v", err)
+	}
+
+	return &n, nil
+}
+
 func (m *MySQL) Save(notification *entities.Notification) (*entities.Notification, error) {
 	query := `INSERT INTO notifications (user_id, reservation_id, message, type, is_read) VALUES (?, ?, ?, ?, ?)`
 
@@ -33,9 +56,7 @@ func (m *MySQL) Save(notification *entities.Notification) (*entities.Notificatio
 		return nil, fmt.Errorf("error al obtener ID: %v", err)
 	}
 
-	notification.ID = int(id)
-	notification.IsRead = false
-	return notification, nil
+	return m.GetByID(int(id))
 }
 
 func (m *MySQL) GetByUserID(userID int) ([]*entities.Notification, error) {

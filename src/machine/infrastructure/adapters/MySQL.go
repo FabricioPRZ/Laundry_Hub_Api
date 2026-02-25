@@ -28,8 +28,7 @@ func (m *MySQL) Save(machine *entities.Machine) (*entities.Machine, error) {
 		return nil, fmt.Errorf("error al obtener ID: %v", err)
 	}
 
-	machine.ID = int(id)
-	return machine, nil
+	return m.GetByID(int(id))
 }
 
 func (m *MySQL) GetByID(id int) (*entities.Machine, error) {
