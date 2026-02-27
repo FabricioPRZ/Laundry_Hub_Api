@@ -11,6 +11,7 @@ import (
 	"laundry-hub-api/src/reservation/domain/entities"
 	userDomain "laundry-hub-api/src/user/domain"
 	userEntities "laundry-hub-api/src/user/domain/entities"
+	"log"
 )
 
 type CreateReservation struct {
@@ -94,6 +95,7 @@ func (cr *CreateReservation) Execute(userID, machineID int) (*entities.Reservati
 			}
 			savedAdminNotif, err := cr.notificationRepo.Save(adminNotification)
 			if err == nil {
+				log.Printf("Enviando notificación al admin ID=%d: %s", admin.ID, adminMessage)
 				ws.SendNotificationToUser(admin.ID, ws.NotificationPayload{
 					ID:            savedAdminNotif.ID,
 					Message:       savedAdminNotif.Message,
