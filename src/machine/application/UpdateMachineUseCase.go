@@ -2,6 +2,7 @@ package application
 
 import (
 	"errors"
+	ws "laundry-hub-api/src/core/websocket"
 	"laundry-hub-api/src/machine/domain"
 	"laundry-hub-api/src/machine/domain/entities"
 )
@@ -23,5 +24,15 @@ func (um *UpdateMachine) Execute(machine *entities.Machine) error {
 		return errors.New("máquina no encontrada")
 	}
 
-	return um.machineRepo.Update(machine)
+	if err := um.machineRepo.Update(machine); err != nil {
+		return err
+	}
+
+	ws.BroadcastNotification(ws.NotificationPayload{
+		ID:      0,
+		Message: "Una máquina fue actualizada",
+		Type:    "MACHINE_STATUS_CHANGED",
+	})
+
+	return nil
 }

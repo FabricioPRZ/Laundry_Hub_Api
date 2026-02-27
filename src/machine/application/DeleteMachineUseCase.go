@@ -2,6 +2,7 @@ package application
 
 import (
 	"errors"
+	ws "laundry-hub-api/src/core/websocket"
 	"laundry-hub-api/src/machine/domain"
 )
 
@@ -22,5 +23,15 @@ func (dm *DeleteMachine) Execute(id int) error {
 		return errors.New("máquina no encontrada")
 	}
 
-	return dm.machineRepo.Delete(id)
+	if err := dm.machineRepo.Delete(id); err != nil {
+		return err
+	}
+
+	ws.BroadcastNotification(ws.NotificationPayload{
+		ID:      0,
+		Message: "Una máquina fue eliminada",
+		Type:    "MACHINE_STATUS_CHANGED",
+	})
+
+	return nil
 }

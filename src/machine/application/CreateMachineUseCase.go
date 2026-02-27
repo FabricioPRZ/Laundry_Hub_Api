@@ -2,6 +2,7 @@ package application
 
 import (
 	"errors"
+	ws "laundry-hub-api/src/core/websocket"
 	"laundry-hub-api/src/machine/domain"
 	"laundry-hub-api/src/machine/domain/entities"
 )
@@ -23,5 +24,16 @@ func (cm *CreateMachine) Execute(machine *entities.Machine) (*entities.Machine, 
 	}
 
 	machine.Status = "AVAILABLE"
-	return cm.machineRepo.Save(machine)
+	saved, err := cm.machineRepo.Save(machine)
+	if err != nil {
+		return nil, err
+	}
+
+	ws.BroadcastNotification(ws.NotificationPayload{
+		ID:      0,
+		Message: "Una nueva máquina fue agregada",
+		Type:    "MACHINE_STATUS_CHANGED",
+	})
+
+	return saved, nil
 }

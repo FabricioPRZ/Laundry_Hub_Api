@@ -2,6 +2,7 @@ package application
 
 import (
 	"errors"
+	ws "laundry-hub-api/src/core/websocket"
 	machineDomain "laundry-hub-api/src/machine/domain"
 	"laundry-hub-api/src/reservation/domain"
 	"time"
@@ -44,6 +45,12 @@ func (cr *CancelReservation) Execute(reservationID, userID int) error {
 		machine.Status = "AVAILABLE"
 		cr.machineRepo.Update(machine)
 	}
+
+	ws.BroadcastNotification(ws.NotificationPayload{
+		ID:      0,
+		Message: "Una reservación fue cancelada",
+		Type:    "MACHINE_STATUS_CHANGED",
+	})
 
 	return nil
 }
