@@ -3,6 +3,7 @@ package application
 import (
 	"errors"
 	"fmt"
+	"log"
 	ws "laundry-hub-api/src/core/websocket"
 	machineDomain "laundry-hub-api/src/machine/domain"
 	"laundry-hub-api/src/notification/domain"
@@ -11,7 +12,6 @@ import (
 	"laundry-hub-api/src/reservation/domain/entities"
 	userDomain "laundry-hub-api/src/user/domain"
 	userEntities "laundry-hub-api/src/user/domain/entities"
-	"log"
 )
 
 type CreateReservation struct {
@@ -84,6 +84,7 @@ func (cr *CreateReservation) Execute(userID, machineID int) (*entities.Reservati
 	}
 
 	admins, err := cr.userRepo.GetByRole("ADMIN")
+	log.Printf("GetByRole resultado: admins=%v, err=%v", admins, err)
 	if err == nil {
 		for _, admin := range admins {
 			adminMessage := fmt.Sprintf("%s %s ha reservado la máquina %d", user.Name, user.PaternalSurname, machineID)
@@ -102,6 +103,8 @@ func (cr *CreateReservation) Execute(userID, machineID int) (*entities.Reservati
 					Type:          savedAdminNotif.Type,
 					ReservationID: savedAdminNotif.ReservationID,
 				})
+			} else {
+				log.Printf("Error guardando notificación para admin ID=%d: %v", admin.ID, err)
 			}
 		}
 	}
