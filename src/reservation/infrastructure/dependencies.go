@@ -7,6 +7,7 @@ import (
 	"laundry-hub-api/src/reservation/application"
 	"laundry-hub-api/src/reservation/infrastructure/adapters"
 	"laundry-hub-api/src/reservation/infrastructure/controllers"
+	userAdapters "laundry-hub-api/src/user/infrastructure/adapters"
 )
 
 type DependenciesReservations struct {
@@ -22,8 +23,9 @@ func InitReservations() *DependenciesReservations {
 	reservationRepo := adapters.NewMySQL(conn.DB)
 	machineRepo := machineAdapters.NewMySQL(conn.DB)
 	notificationRepo := notificationAdapters.NewMySQL(conn.DB)
+	userRepo := userAdapters.NewMySQL(conn.DB)
 
-	createReservation := application.NewCreateReservation(reservationRepo, machineRepo, notificationRepo)
+	createReservation := application.NewCreateReservation(reservationRepo, machineRepo, notificationRepo, userRepo)
 	cancelReservation := application.NewCancelReservation(reservationRepo, machineRepo)
 	completeReservation := application.NewCompleteReservation(reservationRepo, machineRepo)
 	getReservationByID := application.NewGetReservationByID(reservationRepo)

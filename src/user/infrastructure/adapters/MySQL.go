@@ -216,3 +216,44 @@ func (m *MySQL) Delete(id int) error {
 
 	return nil
 }
+
+func (m *MySQL) GetByRole(role string) ([]*entities.User, error) {
+	query := `
+        SELECT id, name, second_name, paternal_surname, maternal_surname,
+               email, password, image_profile, oauth_provider, oauth_id, role,
+               created_at, updated_at
+        FROM users WHERE role = ? ORDER BY created_at DESC
+    `
+
+	rows, err := m.conn.Query(query, role)
+	if err != nil {
+		return nil, fmt.Errorf("error al obtener usuarios por rol: %v", err)
+	}
+	defer rows.Close()
+
+	var users []*entities.User
+	for rows.Next() {
+		var user entities.User
+		err := rows.Scan(
+			&user.ID,
+			&user.Name,
+			&user.SecondName,
+			&user.PaternalSurname,
+			&user.MaternalSurname,
+			&user.Email,
+			&user.Password,
+			&user.ImageProfile,
+			&user.OAuthProvider,
+			&user.OAuthID,
+			&user.Role,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error al escanear usuario: %v", err)
+		}
+		users = append(users, &user)
+	}
+
+	return users, nil
+}
