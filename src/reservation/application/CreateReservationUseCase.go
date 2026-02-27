@@ -3,7 +3,6 @@ package application
 import (
 	"errors"
 	"fmt"
-	"log"
 	ws "laundry-hub-api/src/core/websocket"
 	machineDomain "laundry-hub-api/src/machine/domain"
 	"laundry-hub-api/src/notification/domain"
@@ -12,6 +11,7 @@ import (
 	"laundry-hub-api/src/reservation/domain/entities"
 	userDomain "laundry-hub-api/src/user/domain"
 	userEntities "laundry-hub-api/src/user/domain/entities"
+	"log"
 )
 
 type CreateReservation struct {
