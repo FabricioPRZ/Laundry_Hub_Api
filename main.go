@@ -12,10 +12,12 @@ import (
 	userInfrastructure "laundry-hub-api/src/user/infrastructure"
 	userRoutes "laundry-hub-api/src/user/infrastructure/routes"
 	"log"
+	"os"
+
+	"laundry-hub-api/src/core/security"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"laundry-hub-api/src/core/security"
 )
 
 func main() {
@@ -29,10 +31,10 @@ func main() {
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:4200"},
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-		AllowCredentials: true,
+		AllowCredentials: false,
 	}))
 
 	router.GET("/ws", security.JWTMiddleware(), ws.HandleConnection)
@@ -74,8 +76,13 @@ func main() {
 		notificationDeps.MarkAllAsReadController,
 	)
 
-	log.Println("Servidor corriendo en http://localhost:8080")
-	if err := router.Run(":8080"); err != nil {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	log.Println("Servidor corriendo en puerto " + port)
+	if err := router.Run(":" + port); err != nil {
 		log.Fatal("Error al iniciar el servidor:", err)
 	}
 }
