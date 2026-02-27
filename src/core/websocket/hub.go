@@ -54,3 +54,14 @@ func (h *Hub) Run() {
 		}
 	}
 }
+
+func (h *Hub) BroadcastToAll(payload []byte) {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	for _, client := range h.clients {
+		select {
+		case client.send <- payload:
+		default:
+		}
+	}
+}

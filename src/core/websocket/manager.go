@@ -68,3 +68,17 @@ func SendNotificationToUser(userID int, payload NotificationPayload) {
 		Payload: data,
 	}
 }
+
+func BroadcastNotification(payload NotificationPayload) {
+	if GlobalHub == nil {
+		return
+	}
+
+	data, err := json.Marshal(payload)
+	if err != nil {
+		log.Printf("Error al serializar broadcast: %v", err)
+		return
+	}
+
+	GlobalHub.BroadcastToAll(data)
+}

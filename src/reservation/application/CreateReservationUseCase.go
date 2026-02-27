@@ -58,9 +58,16 @@ func (cr *CreateReservation) Execute(userID, machineID int) (*entities.Reservati
 	}
 
 	machine.Status = "OCCUPIED"
+
 	if err := cr.machineRepo.Update(machine); err != nil {
 		return nil, err
 	}
+
+	ws.BroadcastNotification(ws.NotificationPayload{
+		ID:      0,
+		Message: fmt.Sprintf("La máquina %d cambió su estado", machineID),
+		Type:    "MACHINE_STATUS_CHANGED",
+	})
 
 	user, err := cr.userRepo.GetByID(userID)
 	if err != nil || user == nil {
