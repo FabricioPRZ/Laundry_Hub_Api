@@ -5,6 +5,8 @@ import (
 	ws "laundry-hub-api/src/core/websocket"
 	machineInfrastructure "laundry-hub-api/src/machine/infrastructure"
 	machineRoutes "laundry-hub-api/src/machine/infrastructure/routes"
+	maintenanceInfrastructure "laundry-hub-api/src/maintenance/infrastructure"
+	maintenanceRoutes "laundry-hub-api/src/maintenance/infrastructure/routes"
 	notificationInfrastructure "laundry-hub-api/src/notification/infrastructure"
 	notificationRoutes "laundry-hub-api/src/notification/infrastructure/routes"
 	reservationInfrastructure "laundry-hub-api/src/reservation/infrastructure"
@@ -24,10 +26,11 @@ func main() {
 	cloudinary.InitCloudinary()
 	ws.InitWebSocket()
 
-	userDeps := userInfrastructure.InitUsers()
-	machineDeps := machineInfrastructure.InitMachines()
-	reservationDeps := reservationInfrastructure.InitReservations()
+	userDeps         := userInfrastructure.InitUsers()
+	machineDeps      := machineInfrastructure.InitMachines()
+	reservationDeps  := reservationInfrastructure.InitReservations()
 	notificationDeps := notificationInfrastructure.InitNotifications()
+	maintenanceDeps  := maintenanceInfrastructure.InitMaintenance()
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -74,6 +77,14 @@ func main() {
 		notificationDeps.GetNotificationsByUserController,
 		notificationDeps.MarkAsReadController,
 		notificationDeps.MarkAllAsReadController,
+	)
+
+	maintenanceRoutes.ConfigureMaintenanceRoutes(
+		router,
+		maintenanceDeps.CreateMaintenanceController,
+		maintenanceDeps.GetAllMaintenanceController,
+		maintenanceDeps.ResolveMaintenanceController,
+		maintenanceDeps.DeleteMaintenanceController,
 	)
 
 	port := os.Getenv("PORT")
