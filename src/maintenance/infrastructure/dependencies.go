@@ -24,7 +24,7 @@ func InitMaintenance() *DependenciesMaintenance {
 
 	createMaintenance  := application.NewCreateMaintenance(maintenanceRepo, machineRepo, notificationRepo)
 	getAllMaintenance   := application.NewGetAllMaintenance(maintenanceRepo)
-	resolveMaintenance := application.NewResolveMaintenance(maintenanceRepo, machineRepo)
+	resolveMaintenance := application.NewResolveMaintenance(maintenanceRepo, machineRepo, notificationRepo)
 	deleteMaintenance  := application.NewDeleteMaintenance(maintenanceRepo)
 
 	return &DependenciesMaintenance{

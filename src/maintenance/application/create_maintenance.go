@@ -57,7 +57,7 @@ func (cm *CreateMaintenance) Execute(userID, machineID int, description string) 
 	}
 	savedNotification, err := cm.notificationRepo.Save(notification)
 	if err == nil {
-		ws.SendNotificationToUser(userID, ws.NotificationPayload{
+		ws.BroadcastNotification(ws.NotificationPayload{
 			ID:      savedNotification.ID,
 			Message: savedNotification.Message,
 			Type:    savedNotification.Type,
