@@ -24,7 +24,9 @@ func (cc *CreateMaintenanceController) Execute(c *gin.Context) {
 		return
 	}
 
-	record, err := cc.createMaintenance.Execute(req.MachineID, req.Description)
+	userID, _ := c.Get("user_id")
+
+	record, err := cc.createMaintenance.Execute(userID.(int), req.MachineID, req.Description)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
