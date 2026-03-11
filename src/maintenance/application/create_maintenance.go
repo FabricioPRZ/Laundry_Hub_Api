@@ -17,8 +17,8 @@ type CreateMaintenance struct {
 }
 
 func NewCreateMaintenance(
-	maintenanceRepo domain.IMaintenanceRepository,
-	machineRepo machineDomain.IMachineRepository,
+	maintenanceRepo  domain.IMaintenanceRepository,
+	machineRepo      machineDomain.IMachineRepository,
 	notificationRepo notificationDomain.INotificationRepository,
 ) *CreateMaintenance {
 	return &CreateMaintenance{
@@ -55,14 +55,16 @@ func (cm *CreateMaintenance) Execute(userID, machineID int, description string) 
 		Message: "Máquina \"" + machine.Name + "\" puesta en mantenimiento",
 		Type:    "MAINTENANCE",
 	}
-	savedNotification, err := cm.notificationRepo.Save(notification)
-	if err == nil {
-		ws.BroadcastNotification(ws.NotificationPayload{
-			ID:      savedNotification.ID,
-			Message: savedNotification.Message,
-			Type:    savedNotification.Type,
-		})
+	savedNotification, notifErr := cm.notificationRepo.Save(notification)
+
+	payload := ws.NotificationPayload{
+		Message: "Máquina \"" + machine.Name + "\" puesta en mantenimiento",
+		Type:    "MAINTENANCE",
 	}
+	if notifErr == nil {
+		payload.ID = savedNotification.ID
+	}
+	ws.BroadcastNotification(payload)
 
 	return saved, nil
 }

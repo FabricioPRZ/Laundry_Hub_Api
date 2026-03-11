@@ -23,7 +23,9 @@ func (rc *ResolveMaintenanceController) Execute(c *gin.Context) {
 		return
 	}
 
-	if err := rc.resolveMaintenance.Execute(id); err != nil {
+	userID, _ := c.Get("user_id")
+
+	if err := rc.resolveMaintenance.Execute(id, userID.(int)); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

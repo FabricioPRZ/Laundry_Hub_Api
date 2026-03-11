@@ -27,7 +27,7 @@ func NewResolveMaintenance(
 	}
 }
 
-func (rm *ResolveMaintenance) Execute(id int) error {
+func (rm *ResolveMaintenance) Execute(id, userID int) error {
 	record, err := rm.maintenanceRepo.GetByID(id)
 	if err != nil {
 		return err
@@ -52,18 +52,20 @@ func (rm *ResolveMaintenance) Execute(id int) error {
 		rm.machineRepo.Update(machine)
 
 		notification := &notificationEntities.Notification{
-			UserID:  0,
+			UserID:  userID,
 			Message: "Máquina \"" + machine.Name + "\" disponible nuevamente",
 			Type:    "RELEASED",
 		}
-		savedNotification, err := rm.notificationRepo.Save(notification)
-		if err == nil {
-			ws.BroadcastNotification(ws.NotificationPayload{
-				ID:      savedNotification.ID,
-				Message: savedNotification.Message,
-				Type:    savedNotification.Type,
-			})
+		savedNotification, notifErr := rm.notificationRepo.Save(notification)
+
+		payload := ws.NotificationPayload{
+			Message: "Máquina \"" + machine.Name + "\" disponible nuevamente",
+			Type:    "RELEASED",
 		}
+		if notifErr == nil {
+			payload.ID = savedNotification.ID
+		}
+		ws.BroadcastNotification(payload)
 	}
 
 	return nil
