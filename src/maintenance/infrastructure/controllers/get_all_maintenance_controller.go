@@ -24,7 +24,7 @@ func (gc *GetAllMaintenanceController) Execute(c *gin.Context) {
 		return
 	}
 
-	var response []dto.MaintenanceResponse
+	response := make([]dto.MaintenanceResponse, 0)
 	for _, r := range records {
 		response = append(response, dto.MaintenanceResponse{
 			ID:          r.ID,
